@@ -49,10 +49,13 @@ public class ServerConnection extends server.TCPConnection {
             else
                 command = "NULL";
 
+            System.err.println(command + " " + currentState);
+
             switch (currentState) {
                 case INIT:
                     if (command.equals("EHLO")) {
                         sendMessage("250 OK");
+                        currentState = State.CONNECTED;
                     } else
                         unrecognizedCommand();
                     break;
@@ -60,14 +63,16 @@ public class ServerConnection extends server.TCPConnection {
                     if (command.equals("MAIL")) {
                         // TEST FROM ?
                         if (commandLine.length > 1 && commandLine[1].toUpperCase().equals("FROM:")) {
-                            // mail valide
-                            sendMessage("250 Sender OK");
-                            currentState = State.FROM;
-
-                            // mail non valide
-                            sendMessage("");
-                        }
-                        else
+                            if (commandLine.length > 2) {
+                                // mail valide
+                                sendMessage("250 Sender OK");
+                                currentState = State.FROM;
+                            }
+                            else {
+                                // mail non valide
+                                sendMessage("mail non valide");
+                            }
+                        } else
                             uncorrectParameters();
                     } else if (command.equals("RSET"))
                         reset();
