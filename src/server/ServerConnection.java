@@ -69,6 +69,9 @@ public class ServerConnection extends server.TCPConnection {
 
             switch (currentState) {
                 case INIT:
+                    this.currentUser = null;
+                    this.currentMessage.clear();
+                    this.currentlisteDestinataires.clear();
                     if (commandLine.length == 3 && command.equals("EHLO")) {
                         for (User u : listUsers) {
                             if (u.userExists(commandLine[1], commandLine[2])) {
@@ -133,7 +136,7 @@ public class ServerConnection extends server.TCPConnection {
                     this.currentMessage.add(String.join(" ", commandLine));
                     if (commandLine[0].equals(".")) {
                         this.sendMail();
-                        this.currentState = State.CONNECTED;
+                        this.currentState = State.INIT;
                     }
                     break;
             }
