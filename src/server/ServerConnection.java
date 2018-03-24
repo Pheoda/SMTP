@@ -85,7 +85,9 @@ public class ServerConnection extends server.TCPConnection {
                             currentState = State.CONNECTED;
                         } else
                             sendMessage("-ERR mauvais user");
-                    } else
+                    } else if (command.equals("QUIT"))
+                        quit();
+                    else
                         unrecognizedCommand();
                     break;
                 case CONNECTED:
@@ -126,7 +128,9 @@ public class ServerConnection extends server.TCPConnection {
                     } else if (command.equals("DATA")) {
                         this.currentState = State.DATA;
                         sendMessage("354 Start mail input");
-                    } else
+                    } else if (command.equals("QUIT"))
+                        quit();
+                    else
                         unrecognizedCommand();
                     break;
                 case TO:
@@ -138,6 +142,7 @@ public class ServerConnection extends server.TCPConnection {
                         this.sendMail();
                         this.currentState = State.INIT;
                     }
+                    sendMessage("");
                     break;
             }
         }
