@@ -1,6 +1,11 @@
 package server;
 
+import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
 public class ServerConnection extends server.TCPConnection {
@@ -16,12 +21,12 @@ public class ServerConnection extends server.TCPConnection {
     };
 
     private User currentUser = null;
-    private ArrayList<String> listeDestinataires = new ArrayList<>();
+    private ArrayList<User> currentlisteDestinataires = new ArrayList<>();
+    private ArrayList<String> currentMessage = new ArrayList<>();
 
     private String[] commandLine;
     private String command;
 
-    private ArrayList<String> currentMessage = new ArrayList<>();
 
     public ServerConnection(Socket connexion) {
         super(connexion);
@@ -103,15 +108,15 @@ public class ServerConnection extends server.TCPConnection {
                     break;
                 case FROM:
                     if (commandLine.length == 3 && command.equals("RCPT") && commandLine[1].equals("TO:")) {
-                        String tmp_address = null;
+                        User tmp_user = null;
                         for (User u : listUsers) {
                             if (u.getAddress().equals(commandLine[2])) {
-                                tmp_address = u.getAddress();
+                                tmp_user = u;
                                 break;
                             }
                         }
-                        if (tmp_address != null) {
-                            this.listeDestinataires.add(tmp_address);
+                        if (tmp_user != null) {
+                            this.currentlisteDestinataires.add(tmp_user);
                             sendMessage("250 OK");
                         } else
                             sendMessage("550 No such user here");
@@ -125,17 +130,39 @@ public class ServerConnection extends server.TCPConnection {
 
                     break;
                 case DATA:
-                    System.out.println(commandLine[0]);
-                    if (!commandLine[0].equals(".")) {
-                        this.currentMessage.add(String.join(" ", commandLine));
-                        System.out.println(this.currentMessage);
-                    } else {
-                        System.out.println("ici");
-                        System.out.println(this.currentMessage);
+                    this.currentMessage.add(String.join(" ", commandLine));
+                    if (commandLine[0].equals(".")) {
+                        this.sendMail();
                         this.currentState = State.CONNECTED;
                     }
                     break;
             }
         }
+    }
+
+    private void sendMail() {
+        this.currentlisteDestinataires.forEach(destinataire -> {
+            Path path = Paths.get(destinataire.getUsername() + ".txt");
+            try {
+                Files.write(path, ("\n\nFrom: " + currentUser.getUsername() + "<" + currentUser.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
+                Files.write(path, ("\nTo: " + destinataire.getUsername() + "<" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
+                Files.write(path, ("\n").getBytes(), StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            this.currentMessage.forEach(msg -> {
+                try {
+                    Files.write(path, ("\n" + msg).getBytes(), StandardOpenOption.APPEND);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            try {
+                Files.write(path, ("\n").getBytes(), StandardOpenOption.APPEND);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
