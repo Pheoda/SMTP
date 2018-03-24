@@ -97,7 +97,7 @@ public class ServerConnection extends server.TCPConnection {
                             if (commandLine.length > 2) {
                                 // mail valide
                                 sendMessage("250 Sender OK");
-                                currentState = State.FROM;
+                                currentState = State.TO;
                             } else {
                                 // mail non valide
                                 sendMessage("mail non valide");
@@ -112,6 +112,9 @@ public class ServerConnection extends server.TCPConnection {
                         unrecognizedCommand();
                     break;
                 case FROM:
+                    break;
+
+                case TO:
                     if (commandLine.length == 3 && command.equals("RCPT") && commandLine[1].equals("TO:")) {
                         User tmp_user = null;
                         for (User u : listUsers) {
@@ -134,9 +137,6 @@ public class ServerConnection extends server.TCPConnection {
                         quit();
                     else
                         unrecognizedCommand();
-                    break;
-                case TO:
-
                     break;
                 case DATA:
                     this.currentMessage.add(String.join(" ", commandLine));
