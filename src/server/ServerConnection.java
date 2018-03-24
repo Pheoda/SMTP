@@ -1,6 +1,7 @@
 package server;
 
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ServerConnection extends server.TCPConnection {
 
@@ -9,8 +10,18 @@ public class ServerConnection extends server.TCPConnection {
     private State currentState;
     private boolean loop;
 
+    private User[] listUsers = {
+            new User("user", "pass", "user@mail.com"),
+            new User("user2", "pass", "user2@mail.com")
+    };
+
+    private User currentUser = null;
+    private ArrayList<String> listeDestinataires = new ArrayList<>();
+
     private String[] commandLine;
     private String command;
+
+    private ArrayList<String> currentMessage = new ArrayList<>();
 
     public ServerConnection(Socket connexion) {
         super(connexion);
@@ -53,9 +64,19 @@ public class ServerConnection extends server.TCPConnection {
 
             switch (currentState) {
                 case INIT:
-                    if (command.equals("EHLO")) {
-                        sendMessage("250 OK");
-                        currentState = State.CONNECTED;
+                    if (commandLine.length == 3 && command.equals("EHLO")) {
+                        for (User u : listUsers) {
+                            if (u.userExists(commandLine[1], commandLine[2])) {
+                                currentUser = u;
+                                break;
+                            }
+                        }
+                        // User reconnu ou non
+                        if (currentUser != null) {
+                            sendMessage("250 OK");
+                            currentState = State.CONNECTED;
+                        } else
+                            sendMessage("-ERR mauvais user");
                     } else
                         unrecognizedCommand();
                     break;
@@ -67,8 +88,7 @@ public class ServerConnection extends server.TCPConnection {
                                 // mail valide
                                 sendMessage("250 Sender OK");
                                 currentState = State.FROM;
-                            }
-                            else {
+                            } else {
                                 // mail non valide
                                 sendMessage("mail non valide");
                             }
@@ -82,13 +102,38 @@ public class ServerConnection extends server.TCPConnection {
                         unrecognizedCommand();
                     break;
                 case FROM:
-
+                    if (commandLine.length == 3 && command.equals("RCPT") && commandLine[1].equals("TO:")) {
+                        String tmp_address = null;
+                        for (User u : listUsers) {
+                            if (u.getAddress().equals(commandLine[2])) {
+                                tmp_address = u.getAddress();
+                                break;
+                            }
+                        }
+                        if (tmp_address != null) {
+                            this.listeDestinataires.add(tmp_address);
+                            sendMessage("250 OK");
+                        } else
+                            sendMessage("550 No such user here");
+                    } else if (command.equals("DATA")) {
+                        this.currentState = State.DATA;
+                        sendMessage("354 Start mail input");
+                    } else
+                        unrecognizedCommand();
                     break;
                 case TO:
 
                     break;
                 case DATA:
-
+                    System.out.println(commandLine[0]);
+                    if (!commandLine[0].equals(".")) {
+                        this.currentMessage.add(String.join(" ", commandLine));
+                        System.out.println(this.currentMessage);
+                    } else {
+                        System.out.println("ici");
+                        System.out.println(this.currentMessage);
+                        this.currentState = State.CONNECTED;
+                    }
                     break;
             }
         }

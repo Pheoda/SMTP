@@ -1,0 +1,23 @@
+From: John Doe <jdoe@machine.com>
+To: User <user@server.com>
+Subject : Hey 
+Date : 26/02/2018
+
+Bonjour c'est le 1er message de l'utilisateur 2
+.
+
+From: John Doe <jdoe@machine.com>
+To: User <user@server.com>
+Subject : Hey !
+Date : 27/02/2018
+
+Bonjour c'est le 2e message de l'utilisateur 2
+.
+
+From: John Doe <jdoe@machine.com>
+To: User <user@server.com>
+Subject : Hey !!
+Date : 28/02/2018
+
+Bonjour c'est le 3e message de l'utilisateur 2
+.
