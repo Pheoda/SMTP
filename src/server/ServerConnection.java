@@ -128,7 +128,9 @@ public class ServerConnection extends server.TCPConnection {
                     } else if (command.equals("DATA")) {
                         this.currentState = State.DATA;
                         sendMessage("354 Start mail input");
-                    } else if (command.equals("QUIT"))
+                    } else if (command.equals("RSET"))
+                        reset();
+                    else if (command.equals("QUIT"))
                         quit();
                     else
                         unrecognizedCommand();
@@ -138,7 +140,7 @@ public class ServerConnection extends server.TCPConnection {
                     break;
                 case DATA:
                     this.currentMessage.add(String.join(" ", commandLine));
-                    if (commandLine[0].equals(".")) {
+                    if (commandLine.length > 0 && commandLine[0].equals(".")) {
                         this.sendMail();
                         this.currentState = State.INIT;
                     }
