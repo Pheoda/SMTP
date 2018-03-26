@@ -72,19 +72,9 @@ public class ServerConnection extends server.TCPConnection {
                     this.currentUser = null;
                     this.currentMessage.clear();
                     this.currentlisteDestinataires.clear();
-                    if (commandLine.length == 3 && command.equals("EHLO")) {
-                        for (User u : listUsers) {
-                            if (u.userExists(commandLine[1], commandLine[2])) {
-                                currentUser = u;
-                                break;
-                            }
-                        }
-                        // User reconnu ou non
-                        if (currentUser != null) {
-                            sendMessage("250 OK");
-                            currentState = State.CONNECTED;
-                        } else
-                            sendMessage("-ERR mauvais user");
+                    if (commandLine.length == 1 && command.equals("EHLO")) {
+                        sendMessage("250 OK");
+                        currentState = State.CONNECTED;
                     } else if (command.equals("QUIT"))
                         quit();
                     else
@@ -95,12 +85,23 @@ public class ServerConnection extends server.TCPConnection {
                         // TEST FROM ?
                         if (commandLine.length > 1 && commandLine[1].toUpperCase().equals("FROM:")) {
                             if (commandLine.length > 2) {
-                                // mail valide
-                                sendMessage("250 Sender OK");
-                                currentState = State.TO;
+
+                                for (User u : listUsers) {
+                                    if (u.getAddress().equals(commandLine[2])) {
+                                        currentUser = u;
+                                        break;
+                                    }
+                                }
+                                // User reconnu ou non
+                                if (currentUser != null) {
+                                    sendMessage("250 Sender OK");
+                                    currentState = State.TO;
+                                } else {
+                                    sendMessage("550 No such user here");
+                                }
                             } else {
                                 // mail non valide
-                                sendMessage("mail non valide");
+                                sendMessage("501 Syntax error in parameters or arguments");
                             }
                         } else
                             uncorrectParameters();
@@ -154,8 +155,8 @@ public class ServerConnection extends server.TCPConnection {
         this.currentlisteDestinataires.forEach(destinataire -> {
             Path path = Paths.get(destinataire.getUsername() + ".txt");
             try {
-                Files.write(path, ("\n\nFrom: " + currentUser.getUsername() + "<" + currentUser.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
-                Files.write(path, ("\nTo: " + destinataire.getUsername() + "<" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
+                Files.write(path, ("\n\nFrom: " + currentUser.getUsername() + " <" + currentUser.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
+                Files.write(path, ("\nTo: " + destinataire.getUsername() + " <" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
                 Files.write(path, ("\n").getBytes(), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 e.printStackTrace();
