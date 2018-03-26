@@ -22,6 +22,7 @@ public class ServerConnection extends server.TCPConnection {
 
     private User currentUser = null;
     private ArrayList<User> currentlisteDestinataires = new ArrayList<>();
+    private ArrayList<String> listeNotFoundDestinataires = new ArrayList<>();
     private ArrayList<String> currentMessage = new ArrayList<>();
 
     private String[] commandLine;
@@ -65,7 +66,6 @@ public class ServerConnection extends server.TCPConnection {
             else
                 command = "NULL";
 
-            System.err.println(command + " " + currentState);
 
             switch (currentState) {
                 case INIT:
@@ -81,6 +81,9 @@ public class ServerConnection extends server.TCPConnection {
                         unrecognizedCommand();
                     break;
                 case CONNECTED:
+                    this.currentUser = null;
+                    this.currentMessage.clear();
+                    this.currentlisteDestinataires.clear();
                     if (command.equals("MAIL")) {
                         // TEST FROM ?
                         if (commandLine.length > 1 && commandLine[1].toUpperCase().equals("FROM:")) {
@@ -127,9 +130,11 @@ public class ServerConnection extends server.TCPConnection {
                         if (tmp_user != null) {
                             this.currentlisteDestinataires.add(tmp_user);
                             sendMessage("250 OK");
-                        } else
+                        } else {
+                            this.listeNotFoundDestinataires.add(commandLine[2]);
                             sendMessage("550 No such user here");
-                    } else if (command.equals("DATA")) {
+                        }
+                    } else if (command.equals("DATA") && this.currentlisteDestinataires.size() > 0) {
                         this.currentState = State.DATA;
                         sendMessage("354 Start mail input");
                     } else if (command.equals("RSET"))
@@ -143,7 +148,14 @@ public class ServerConnection extends server.TCPConnection {
                     this.currentMessage.add(String.join(" ", commandLine));
                     if (commandLine.length > 0 && commandLine[0].equals(".")) {
                         this.sendMail();
-                        this.currentState = State.INIT;
+                        if (this.listeNotFoundDestinataires.size() > 0) {
+                            StringBuilder msg = new StringBuilder("Ces users n'existent pas :\n");
+                            this.listeNotFoundDestinataires.forEach(destinataires -> {
+                                msg.append(destinataires + "\n");
+                            });
+                            sendMessage(msg.toString());
+                        }
+                        this.currentState = State.CONNECTED;
                     }
                     sendMessage("");
                     break;
