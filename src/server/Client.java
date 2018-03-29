@@ -1,5 +1,7 @@
 package server;
 
+import connection.TCPConnection;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -7,7 +9,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Client extends server.TCPConnection {
+public class Client extends TCPConnection {
 
     private boolean skipCommand;
 

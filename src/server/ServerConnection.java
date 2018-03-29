@@ -1,5 +1,7 @@
 package server;
 
+import connection.TCPConnection;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Files;
@@ -8,7 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 
-public class ServerConnection extends server.TCPConnection {
+public class ServerConnection extends TCPConnection {
 
     private enum State {INIT, CONNECTED, FROM, TO, DATA}
 
