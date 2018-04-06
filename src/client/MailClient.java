@@ -40,7 +40,7 @@ public class MailClient extends TCPConnection {
     @Override
     public void run() {
         Scanner sc = new Scanner(System.in);
-        String from, to, subject, message;
+        String from, to, subject, message = "";
         StringBuilder mail = new StringBuilder();
 
         // Identification
@@ -62,10 +62,17 @@ public class MailClient extends TCPConnection {
         mail.append(subject);
 
         // Date
-        mail.append("Date: ");
+        mail.append("\nDate: ");
         mail.append(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now()));
 
         // Message
         System.out.println("Message : ");
+        do {
+            mail.append("\n");
+            mail.append(message);
+            message = sc.nextLine();
+        }while(!message.equals(""));
+
+
     }
 }
