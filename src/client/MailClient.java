@@ -20,27 +20,24 @@ public class MailClient extends TCPConnection {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        boolean loop = true;
 
-        while(loop) {
-            System.out.print("Adresse IP serveur : ");
-            String ip = sc.nextLine();
-            System.out.print("Port serveur : ");
-            int port = sc.nextInt();
-            try {
-                Client c = new Client(InetAddress.getByName(ip), port);
-                new Thread(c).start();
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                loop = false;
-            }
+        System.out.print("Adresse IP serveur : ");
+        String ip = sc.nextLine();
+        System.out.print("Port serveur : ");
+        int port = sc.nextInt();
+        try {
+            MailClient c = new MailClient(InetAddress.getByName(ip), port);
+            new Thread(c).start();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     @Override
     public void run() {
         Scanner sc = new Scanner(System.in);
-        String from, to, subject, message = "";
+        String from, to, subject;
+        StringBuilder message = new StringBuilder();
         StringBuilder mail = new StringBuilder();
 
         // Identification
@@ -55,24 +52,70 @@ public class MailClient extends TCPConnection {
         mail.append("\nTO: ");
         mail.append(to);
 
-        // Objet
-        System.out.print("Objet : ");
-        subject = sc.nextLine();
-        mail.append("Subject: ");
-        mail.append(subject);
-
         // Date
         mail.append("\nDate: ");
         mail.append(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now()));
 
+        // Objet
+        System.out.print("Objet : ");
+        subject = sc.nextLine();
+        mail.append("\nSubject: ");
+        mail.append(subject);
+
+        String line = "";
         // Message
         System.out.println("Message : ");
         do {
             mail.append("\n");
-            mail.append(message);
-            message = sc.nextLine();
-        }while(!message.equals(""));
+            mail.append(line);
+            message.append("\n");
+            message.append(line);
+            line = sc.nextLine();
+        } while (!line.equals(""));
 
 
+        System.out.println(mail);
+        System.out.println("Envoi du mail...");
+
+        // Connexion with the server
+        sendMessage("EHLO");
+
+        waitForServerAnswer();
+
+        sendMessage("MAIL FROM: " + from);
+
+        waitForServerAnswer();
+
+        sendMessage("RCPT TO: " + to);
+
+        waitForServerAnswer();
+
+        sendMessage("DATA: ");
+
+        waitForServerAnswer();
+
+        message.append("\n.\n");
+        sendMessage(message.toString());
+
+        waitForServerAnswer();
+
+        System.out.println("Mail success !");
+    }
+
+    private void waitForServerAnswer() {
+        String[] serverResponse;
+
+        serverResponse = readCommand();
+
+        if (!(serverResponse[0].charAt(0) == '2')) {
+            System.out.print("Error : ");
+            for (String s : serverResponse)
+                System.out.print(s + " ");
+            quit();
+        }
+    }
+
+    private void quit() {
+        Thread.currentThread().interrupt();
     }
 }
