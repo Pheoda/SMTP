@@ -15,7 +15,6 @@ public class ServerConnection extends TCPConnection {
     private enum State {INIT, CONNECTED, FROM, TO, DATA}
 
     private State currentState;
-    private boolean loop;
 
     private User[] listUsers = {
             new User("user", "pass", "user@mail.com"),
@@ -37,13 +36,12 @@ public class ServerConnection extends TCPConnection {
         sendMessage("220 Service ready");
 
         currentState = State.INIT;
-        loop = true;
     }
 
     private void quit() {
         sendMessage("221 Closing connection");
 
-        loop = false;
+        running = false;
     }
 
     private void reset() {
@@ -61,14 +59,14 @@ public class ServerConnection extends TCPConnection {
 
     @Override
     public void run() {
-        while (loop) {
+        while (running) {
             commandLine = readCommand();
             if (commandLine.length > 0)
                 command = commandLine[0].toUpperCase();
             else
                 command = "NULL";
 
-
+            System.out.println("received=" + String.join(" ", commandLine));
             switch (currentState) {
                 case INIT:
                     this.currentUser = null;
@@ -134,7 +132,7 @@ public class ServerConnection extends TCPConnection {
                             sendMessage("250 OK");
                         } else {
                             this.listeNotFoundDestinataires.add(commandLine[2]);
-                            sendMessage("550 No such user here");
+                            sendMessage("550 No such user here : " + commandLine[2]);
                         }
                     } else if (command.equals("DATA") && this.currentlisteDestinataires.size() > 0) {
                         this.currentState = State.DATA;
@@ -159,7 +157,6 @@ public class ServerConnection extends TCPConnection {
                         }
                         this.currentState = State.CONNECTED;
                     }
-                    sendMessage("");
                     break;
             }
         }

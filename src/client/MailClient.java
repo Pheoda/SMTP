@@ -40,6 +40,9 @@ public class MailClient extends TCPConnection {
         StringBuilder message = new StringBuilder();
         StringBuilder mail = new StringBuilder();
 
+        // 220 Service ready
+        waitForServerAnswer();
+
         // Identification
         System.out.print("Identification : ");
         from = sc.nextLine();
@@ -66,11 +69,11 @@ public class MailClient extends TCPConnection {
         // Message
         System.out.println("Message : ");
         do {
-            mail.append("\n");
-            mail.append(line);
-            message.append("\n");
-            message.append(line);
             line = sc.nextLine();
+            mail.append(line);
+            mail.append("\n");
+            message.append(line);
+            message.append("\n");
         } while (!line.equals(""));
 
 
@@ -90,11 +93,11 @@ public class MailClient extends TCPConnection {
 
         waitForServerAnswer();
 
-        sendMessage("DATA: ");
+        sendMessage("DATA");
 
         waitForServerAnswer();
 
-        message.append("\n.\n");
+        message.append(".\n");
         sendMessage(message.toString());
 
         waitForServerAnswer();
@@ -107,15 +110,15 @@ public class MailClient extends TCPConnection {
 
         serverResponse = readCommand();
 
-        if (!(serverResponse[0].charAt(0) == '2')) {
+        char replyCode = serverResponse[0].charAt(0);
+        if (replyCode != '2' && replyCode != '3') {
             System.out.print("Error : ");
             for (String s : serverResponse)
                 System.out.print(s + " ");
-            quit();
+            System.out.println();
+            System.out.println();
         }
-    }
-
-    private void quit() {
-        Thread.currentThread().interrupt();
+        else
+            System.out.println("Server replied : " + String.join(" ", serverResponse));
     }
 }

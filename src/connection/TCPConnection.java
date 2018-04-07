@@ -13,7 +13,7 @@ public abstract class TCPConnection implements Runnable {
     public final static int CR = 13;
     public final static int LF = 10;
 
-    boolean run = true;
+    protected boolean running;
 
     public enum State {AUTHORIZATION, TRANSACTION}
 
@@ -25,6 +25,8 @@ public abstract class TCPConnection implements Runnable {
     protected State state;
 
     public TCPConnection(Socket connexion) {
+        running = true;
+
         socket = connexion;
         try {
             in = socket.getInputStream();
@@ -51,9 +53,9 @@ public abstract class TCPConnection implements Runnable {
                 crReceived = (character == CR);
 
             } catch (IOException e) {
-                run = false;
+                running = false;
             }
-        } while (character != -1 && !end);
+        } while (running && character != -1 && !end);
 
         return request.split("\\s+");
     }
