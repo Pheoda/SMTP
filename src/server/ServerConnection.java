@@ -168,7 +168,6 @@ public class ServerConnection extends TCPConnection {
             try {
                 Files.write(path, ("\n\nFrom: " + currentUser.getUsername() + " <" + currentUser.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
                 Files.write(path, ("\nTo: " + destinataire.getUsername() + " <" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
-                Files.write(path, ("\n").getBytes(), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 e.printStackTrace();
             }

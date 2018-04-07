@@ -8,11 +8,15 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MailClient extends TCPConnection {
+
+    private String display;
 
     public MailClient(InetAddress ia, int port) throws IOException {
         super(new Socket(ia, port));
@@ -37,7 +41,7 @@ public class MailClient extends TCPConnection {
     public void run() {
         Scanner sc = new Scanner(System.in);
         String from, to, subject;
-        StringBuilder message = new StringBuilder();
+        ArrayList<String> message = new ArrayList<String>();
         StringBuilder mail = new StringBuilder();
 
         // 220 Service ready
@@ -58,12 +62,15 @@ public class MailClient extends TCPConnection {
         // Date
         mail.append("\nDate: ");
         mail.append(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now()));
+        message.add("Date: " + DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss").format(LocalDateTime.now()));
 
         // Objet
         System.out.print("Objet : ");
         subject = sc.nextLine();
         mail.append("\nSubject: ");
         mail.append(subject);
+        message.add("Subject: " + subject);
+        message.add(" ");
 
         String line = "";
         // Message
@@ -72,8 +79,7 @@ public class MailClient extends TCPConnection {
             line = sc.nextLine();
             mail.append(line);
             mail.append("\n");
-            message.append(line);
-            message.append("\n");
+            message.add(line);
         } while (!line.equals(""));
 
 
@@ -97,12 +103,16 @@ public class MailClient extends TCPConnection {
 
         waitForServerAnswer();
 
-        message.append(".\n");
-        sendMessage(message.toString());
+        message.add(".\n");
+        message.forEach(s -> {
+            sendMessage(s);
+        });
+
+        System.out.println();
 
         waitForServerAnswer();
 
-        System.out.println("Mail success !");
+        System.out.println(this.display);
     }
 
     private void waitForServerAnswer() {
@@ -117,8 +127,11 @@ public class MailClient extends TCPConnection {
                 System.out.print(s + " ");
             System.out.println();
             System.out.println();
+            this.display = "Send Failed";
         }
-        else
+        else {
             System.out.println("Server replied : " + String.join(" ", serverResponse));
+            this.display = "Send Succeeded !";
+        }
     }
 }
