@@ -142,7 +142,7 @@ public class ServerConnection extends TCPConnection {
 
     private void sendMail() {
         this.currentlisteDestinataires.forEach(destinataire -> {
-            Path path = Paths.get(destinataire.getUsername() + ".txt");
+            Path path = Paths.get(destinataire.getAddress() + ".txt");
             try {
                 Files.write(path, ("\n\nFrom: " + currentUser + " <" + currentUser + ">").getBytes(), StandardOpenOption.APPEND);
                 Files.write(path, ("\nTo: " + destinataire.getUsername() + " <" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);

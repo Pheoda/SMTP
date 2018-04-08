@@ -22,7 +22,7 @@ public class User {
         this.messages = new ArrayList<>();
 
         try {
-            this.reader = new BufferedReader(new FileReader(this.username + ".txt"));
+            this.reader = new BufferedReader(new FileReader(this.address + ".txt"));
             String line;
             String currentMessage = "";
             int currentSize = 0;
