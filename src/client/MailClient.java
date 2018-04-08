@@ -41,7 +41,7 @@ public class MailClient extends TCPConnection {
     public void run() {
         Scanner sc = new Scanner(System.in);
         String from, to, subject;
-        ArrayList<String> message = new ArrayList<String>();
+        ArrayList<String> message = new ArrayList<>();
         StringBuilder mail = new StringBuilder();
 
         // 220 Service ready

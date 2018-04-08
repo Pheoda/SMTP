@@ -185,5 +185,6 @@ public class ServerConnection extends TCPConnection {
                 e.printStackTrace();
             }
         });
+        sendMessage("250 Message sent");
     }
 }

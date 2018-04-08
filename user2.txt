@@ -21,3 +21,12 @@ Date : 28/02/2018
 
 Bonjour c'est le 3e message de l'utilisateur 2
 .
+
+From: user <user@mail.com>
+To: user2 <user2@mail.com>
+Date: 08/04/2018 15:26:32
+Subject: Bonjour
+
+Je test
+
+.
