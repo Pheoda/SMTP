@@ -38,7 +38,7 @@ public abstract class TCPConnection implements Runnable {
         }
     }
 
-    protected String[] readCommand() {
+    public String[] readCommand() {
         int character = -1;
         boolean end = false, crReceived = false;
         String request = "";
@@ -61,7 +61,7 @@ public abstract class TCPConnection implements Runnable {
     }
 
 
-    protected void sendMessage(String message) {
+    public void sendMessage(String message) {
         try {
             out.write((message + "\r\n").getBytes());
             System.out.println("Said : " + message);

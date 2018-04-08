@@ -9,21 +9,16 @@ import java.util.logging.Logger;
 public class Server implements Runnable {
 
     private ServerSocket server;
-    private static final int PORT = 2000;
+    private User[] listUsers;
     private static final int CONNECTION = 6;
 
-    public Server() {
+    public Server(int port, User[] list) {
         try {
-            server = new ServerSocket(PORT, CONNECTION);
+            this.listUsers = list;
+            server = new ServerSocket(port, CONNECTION);
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public static void main(String[] args) {
-        Server s = new Server();
-
-        new Thread(s).start();
     }
 
     @Override
@@ -34,7 +29,7 @@ public class Server implements Runnable {
             try {
                 Socket connection;
                 connection = server.accept();
-                new Thread(new ServerConnection(connection)).start();
+                new Thread(new ServerConnection(connection, listUsers)).start();
             } catch (IOException ex) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
                 loop = false;
