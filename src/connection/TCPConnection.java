@@ -64,7 +64,6 @@ public abstract class TCPConnection implements Runnable {
     public void sendMessage(String message) {
         try {
             out.write((message + "\r\n").getBytes());
-            System.out.println("Said : " + message);
         } catch (IOException e) {
 
         }

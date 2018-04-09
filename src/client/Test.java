@@ -70,83 +70,82 @@ public class Test {
         System.out.println(mail);
         System.out.println("Envoi du mail...");
 
-        for (String destinataire: this.destinataires)
-        {
-            if(!destinataire.contains("@")) {
+        for (String destinataire : this.destinataires) {
+            if (!destinataire.contains("@")) {
                 System.out.println("Not found address");
-                break;
-            }
-            String nom_domaine = destinataire.substring(destinataire.indexOf("@"));
-            if (nom_domaine.equals("@free.fr")) {
-                try {
-                    this.client = new Client(InetAddress.getByName("192.168.0.3"),2000);
-                    waitForServerAnswer();
-                    // Connexion with the server
-                    this.client.sendMessage("EHLO");
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("MAIL FROM: " + from);
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("RCPT TO: " + to);
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("DATA");
-
-                    waitForServerAnswer();
-
-                    message.add(".\n");
-                    message.forEach(s -> {
-                        this.client.sendMessage(s);
-                    });
-
-                    System.out.println();
-
-                    waitForServerAnswer();
-
-                    System.out.println(this.display);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else if (nom_domaine.equals("@gmail.com")) {
-                try {
-                    this.client = new Client(InetAddress.getByName("192.168.0.3"), 4000);
-                    waitForServerAnswer();
-                    // Connexion with the server
-                    this.client.sendMessage("EHLO");
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("MAIL FROM: " + from);
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("RCPT TO: " + to);
-
-                    waitForServerAnswer();
-
-                    this.client.sendMessage("DATA");
-
-                    waitForServerAnswer();
-
-                    message.add(".\n");
-                    message.forEach(s -> {
-                        this.client.sendMessage(s);
-                    });
-
-                    System.out.println();
-
-                    waitForServerAnswer();
-
-                    System.out.println(this.display);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             } else {
-                System.out.println("Not found address");
+                String nom_domaine = destinataire.substring(destinataire.indexOf("@"));
+                if (nom_domaine.equals("@free.fr")) {
+                    try {
+                        this.client = new Client(InetAddress.getByName("134.214.116.127"), 2000);
+                        waitForServerAnswer();
+                        // Connexion with the server
+                        this.client.sendMessage("EHLO");
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("MAIL FROM: " + from);
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("RCPT TO: " + destinataire);
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("DATA");
+
+                        waitForServerAnswer();
+
+                        message.add(".\n");
+                        message.forEach(s -> {
+                            this.client.sendMessage(s);
+                        });
+
+                        System.out.println();
+
+                        waitForServerAnswer();
+
+                        System.out.println(this.display);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else if (nom_domaine.equals("@gmail.com")) {
+                    try {
+                        this.client = new Client(InetAddress.getByName("134.214.116.193"), 4000);
+                        waitForServerAnswer();
+                        // Connexion with the server
+                        this.client.sendMessage("EHLO");
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("MAIL FROM: " + from);
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("RCPT TO: " + destinataire);
+
+                        waitForServerAnswer();
+
+                        this.client.sendMessage("DATA");
+
+                        waitForServerAnswer();
+
+                        message.add(".\n");
+                        message.forEach(s -> {
+                            this.client.sendMessage(s);
+                        });
+
+                        System.out.println();
+
+                        waitForServerAnswer();
+
+                        System.out.println(this.display);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Not found address");
+                }
             }
         }
     }
@@ -164,8 +163,7 @@ public class Test {
             System.out.println();
             System.out.println();
             this.display = "Send Failed";
-        }
-        else {
+        } else {
             System.out.println("Server replied : " + String.join(" ", serverResponse));
             this.display = "Send Succeeded !";
         }
