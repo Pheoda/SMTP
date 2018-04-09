@@ -83,7 +83,7 @@ public class ServerConnection extends TCPConnection {
                     this.currentMessage.clear();
                     this.currentlisteDestinataires.clear();
                     if (command.equals("MAIL")) {
-                        currentUser = commandLine[1];
+                        currentUser = commandLine[2];
                         sendMessage("250 Sender OK");
                         currentState = State.TO;
                     } else if (command.equals("RSET"))
@@ -144,7 +144,7 @@ public class ServerConnection extends TCPConnection {
         this.currentlisteDestinataires.forEach(destinataire -> {
             Path path = Paths.get(destinataire.getAddress() + ".txt");
             try {
-                Files.write(path, ("\n\nFrom: " + currentUser + " <" + currentUser + ">").getBytes(), StandardOpenOption.APPEND);
+                Files.write(path, ("\n\nFrom: " + " <" + currentUser + ">").getBytes(), StandardOpenOption.APPEND);
                 Files.write(path, ("\nTo: " + destinataire.getUsername() + " <" + destinataire.getAddress() + ">").getBytes(), StandardOpenOption.APPEND);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -163,5 +163,6 @@ public class ServerConnection extends TCPConnection {
                 e.printStackTrace();
             }
         });
+        sendMessage("250 OK");
     }
 }
